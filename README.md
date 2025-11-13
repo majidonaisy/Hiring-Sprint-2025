@@ -1,19 +1,5 @@
 # 🚗 AI-Powered Vehicle Condition Assessment — Hiring Sprint
 
-## 📚 Table of Contents
-
-1. [Overview](#-overview)
-2. [Goal / Business Requirements](#goal--business-requirements)
-3. [Deliverables](#deliverables)
-4. [Selection Criteria](#selection-criteria)
-5. [Technical Requirements](#technical-requirements)
-6. [Deployment Requirements](#deployment-requirements)
-7. [Bonus Points](#bonus-points)
-8. [Resources](#resources)
-9. [Pro Tips / Implementation Notes](#-pro-tips--implementation-notes)
-
----
-
 ## 🧩 Overview
 
 Build a working prototype for **AI-powered vehicle condition assessment**. The system should allow users to capture/upload vehicle images at pick-up and return, automatically detect damages, and display a report.
