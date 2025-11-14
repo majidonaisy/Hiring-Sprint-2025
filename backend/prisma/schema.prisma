@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model Assessment {
+  id                  String   @id @default(cuid())
+  vehicleId           String
+  vehicleName         String
+  status              String @default("PICKUP_IN_PROGRESS")
+  
+  // Cost tracking
+  totalDamageCost     Float    @default(0)
+  newDamageCost       Float    @default(0)
+  
+  // Relations
+  photos              Photo[]
+  damages             Damage[]
+  comparisons         Comparison[]
+  
+  // Timestamps
+  createdAt           DateTime @default(now())
+  pickupAnalyzedAt    DateTime?
+  returnAnalyzedAt    DateTime?
+  completedAt         DateTime?
+  updatedAt           DateTime @updatedAt
+  
+  // Indexes
+  @@index([vehicleId])
+  @@index([status])
+  @@map("assessments")
+}
+
+model Photo {
+  id                  String   @id @default(cuid())
+  assessmentId        String
+  assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  
+  angle               String
+  phase               String
+  
+  filename            String
+  storagePath         String?
+  fileSize            Int
+  
+  // Relations
+  damages             Damage[]
+  pickupComparisons   Comparison[] @relation("pickupPhoto")
+  returnComparisons   Comparison[] @relation("returnPhoto")
+  
+  createdAt           DateTime @default(now())
+  
+  // Unique: one photo per angle/phase per assessment
+  @@unique([assessmentId, angle, phase])
+  @@index([assessmentId])
+  @@index([angle, phase])
+  @@map("photos")
+}
+
+model Damage {
+  id                  String   @id @default(cuid())
+  assessmentId        String
+  assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  
+  angle               String
+  phase               String
+  
+  photoId             String?
+  photo               Photo? @relation(fields: [photoId], references: [id], onDelete: SetNull)
+  
+  description         String
+  severity            String
+  location            String
+  
+  estimatedCost       Float    @default(0)
+  aiConfidence        Float    @default(0)
+  
+  isNew               Boolean  @default(false)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([assessmentId])
+  @@index([angle, phase])
+  @@index([isNew])
+  @@map("damages")
+}
+
+model Comparison {
+  id                  String   @id @default(cuid())
+  assessmentId        String
+  assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  
+  angle               String
+  
+  pickupPhotoId       String?
+  pickupPhoto         Photo? @relation("pickupPhoto", fields: [pickupPhotoId], references: [id], onDelete: SetNull)
+  
+  returnPhotoId       String?
+  returnPhoto         Photo? @relation("returnPhoto", fields: [returnPhotoId], references: [id], onDelete: SetNull)
+  
+  comparisonScore     Float    @default(0)
+  newDamagesCount     Int      @default(0)
+  newDamagesCost      Float    @default(0)
+  
+  analysisData        String?  // JSON stored as string
+  
+  comparedAt          DateTime @default(now())
+  
+  // Unique: one comparison per angle per assessment
+  @@unique([assessmentId, angle])
+  @@index([assessmentId])
+  @@index([angle])
+  @@map("comparisons")
+}

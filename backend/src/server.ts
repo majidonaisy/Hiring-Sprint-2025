@@ -4,17 +4,16 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { setupSwaggerUI } from './openapi/swagger';
+import assessmentRoutes from './routes/assessments';
+import initializeAIProviders from './services/providerSetup';
+import { initializeStorageProviders } from './services/storageSetup';
 
 // Load environment variables
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app: Express = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 /**
  * MIDDLEWARE SETUP
@@ -43,11 +42,19 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 /**
+ * SWAGGER UI & API DOCUMENTATION
+ */
+setupSwaggerUI(app);
+
+/**
  * ROUTES
  */
 
+// Assessment endpoints
+app.use('/api/assessments', assessmentRoutes);
+
 // Health Check Endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({
         status: 'OK',
         timestamp: new Date().toISOString(),
@@ -56,7 +63,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API Status
-app.get('/api/status', (req: Request, res: Response) => {
+app.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({
         message: 'Vehicle Inspection API is running',
         version: '1.0.0',
@@ -74,7 +81,7 @@ app.use((req: Request, res: Response) => {
 });
 
 // Error Handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error('Error:', err);
     res.status(err.status || 500).json({
         error: err.message || 'Internal Server Error',
@@ -85,7 +92,21 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 /**
  * SERVER START
  */
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    // Initialize AI providers on startup
+    try {
+        await initializeAIProviders();
+    } catch (error) {
+        console.error('Failed to initialize AI providers:', error);
+    }
+
+    // Initialize storage providers on startup
+    try {
+        await initializeStorageProviders();
+    } catch (error) {
+        console.error('Failed to initialize storage providers:', error);
+    }
+
     console.log(`
 ╔════════════════════════════════════════╗
 ║   🚗 Vehicle Inspection API Server    ║
@@ -96,8 +117,12 @@ app.listen(PORT, () => {
   Database: ${process.env.DATABASE_PATH || './database/inspections.db'}
   
   Endpoints:
-    GET  /health          - Health check
-    GET  /api/status      - API status
+    GET  /health               - Health check
+    GET  /api/status           - API status
+    POST /api/assessments      - Create assessment
+    GET  /api/assessments/:id  - Get assessment
+    GET  /api/docs             - Swagger UI
+    GET  /api/openapi.json     - OpenAPI spec
   
   Ready to accept requests...
   `);
