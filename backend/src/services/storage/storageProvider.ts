@@ -23,7 +23,7 @@ export interface StorageDeleteResponse {
  */
 export interface IStorageProvider {
     name: string;
-    
+
     /**
      * Upload a file to storage
      * @param file - Buffer or file data
