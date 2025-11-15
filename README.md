@@ -12,8 +12,8 @@ A production-ready web application that automates vehicle condition assessments 
 
 ### 🔗 Live Demo
 - **Frontend**: [https://hiring-sprint-fe.vercel.app](https://hiring-sprint-fe.vercel.app)
-- **Backend API**: [https://vehicle-inspection-backend.onrender.com](https://vehicle-inspection-backend.onrender.com)
-- **API Documentation**: [https://vehicle-inspection-backend.onrender.com/api/docs](https://vehicle-inspection-backend.onrender.com/api/docs)
+- **Backend API**: [https://ai-car-inspection.onrender.com/](https://ai-car-inspection.onrender.com/api/docs/)
+- **API Documentation**: [https://ai-car-inspection.onrender.com/api/docs/](https://ai-car-inspection.onrender.com/api/docs/)
 
 ---
 
