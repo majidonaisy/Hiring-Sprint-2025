@@ -55,5 +55,5 @@ EXPOSE 5001
 ENV NODE_ENV=production
 ENV PORT=5001
 
-# Start the application
-CMD ["node", "dist/server.js"]
+# Start the application with migrations
+CMD npx prisma migrate deploy && node dist/server.js
