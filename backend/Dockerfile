@@ -44,8 +44,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 # Copy compiled JavaScript from builder
 COPY --from=builder /app/dist ./dist
 
-# Create required directories
-RUN mkdir -p uploads database
+# Create required directories with proper permissions
+RUN mkdir -p uploads database && \
+    chmod 777 uploads database
 
 # Expose application port
 EXPOSE 5001

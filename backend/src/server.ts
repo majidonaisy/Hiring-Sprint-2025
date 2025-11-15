@@ -15,6 +15,9 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy - required for Render deployment
+app.set('trust proxy', 1);
+
 /**
  * MIDDLEWARE SETUP
  */
