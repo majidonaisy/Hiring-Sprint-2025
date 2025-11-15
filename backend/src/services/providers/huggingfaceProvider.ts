@@ -76,6 +76,7 @@ export class HuggingFaceProvider implements IAIProvider {
 
     /**
      * Analyze photo using YOLOv8 damage detection model
+     * Now accepts photo with storagePath (URL) instead of file data
      */
     async analyzePhoto(
         photo: Photo,
@@ -83,13 +84,15 @@ export class HuggingFaceProvider implements IAIProvider {
         phase: AssessmentPhase
     ): Promise<PhotoAnalysis> {
         try {
-            // Convert photo to base64 if it's a file path
-            const imageData = await this.getImageData(photo);
+            // Use storagePath (Supabase URL) directly instead of converting file
+            if (!photo.storagePath) {
+                throw new Error('Photo storagePath (URL) is required for analysis');
+            }
 
-            // Call HuggingFace Inference API
+            // Call HuggingFace Inference API with image URL
             const response = await axios.post(
                 this.modelEndpoint,
-                { inputs: imageData },
+                { inputs: photo.storagePath }, // Send URL directly
                 {
                     headers: {
                         Authorization: `Bearer ${this.apiKey}`,
@@ -116,25 +119,6 @@ export class HuggingFaceProvider implements IAIProvider {
             console.error(`Error analyzing photo with HuggingFace: ${error}`);
             throw new Error(`HuggingFace analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-    }
-
-    /**
-     * Convert photo to base64 for API transmission
-     */
-    private async getImageData(photo: Photo): Promise<string> {
-        // If photo has binary data
-        if (photo.data && typeof photo.data === 'object' && 'toString' in photo.data) {
-            return (photo.data as any).toString('base64');
-        }
-
-        // If photo has storage path, we would need to read from disk
-        // For now, assume the photo object contains the image data
-        if (typeof photo.data === 'string') {
-            // Already base64 or URL
-            return photo.data;
-        }
-
-        throw new Error('Invalid photo data format');
     }
 
     /**

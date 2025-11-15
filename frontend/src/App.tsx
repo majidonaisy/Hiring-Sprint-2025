@@ -1,7 +1,7 @@
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import HomePage from './pages/HomePage';
-// import InspectionPage from './pages/InspectionPage';
-// import ReportPage from './pages/ReportPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AssessmentPage } from './pages/AssessmentPage';
+import { ReportPage } from './pages/ReportPage';
 
 /**
  * Main Application Component
@@ -9,7 +9,20 @@
  */
 function App() {
     return (
-        <div>Hello</div>
+        <Router>
+            <Toaster
+                position="top-right"
+                richColors
+                closeButton
+                expand
+            />
+            <Routes>
+                <Route path="/" element={<AssessmentPage />} />
+                <Route path="/assessment/:assessmentId" element={<AssessmentPage />} />
+                <Route path="/report/:assessmentId" element={<ReportPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </Router>
     );
 }
 

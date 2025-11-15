@@ -7,6 +7,7 @@
 import { providerRegistry } from '@/services/aiProvider';
 import { aiService as mockProvider } from '@/services/aiService';
 import { huggingfaceProvider } from '@/services/providers/huggingfaceProvider';
+import { roboflowProvider } from '@/services/providers/roboflowProvider';
 
 /**
  * Initialize all available AI providers
@@ -30,6 +31,19 @@ export async function initializeAIProviders(): Promise<void> {
             }
         } catch (error) {
             console.log('⚠️  HuggingFace provider failed to initialize:', error instanceof Error ? error.message : error);
+        }
+
+        // Register Roboflow Provider
+        try {
+            const isValid = await roboflowProvider.validateConfig();
+            if (isValid) {
+                await providerRegistry.registerProvider('roboflow', roboflowProvider);
+                console.log('✓ Roboflow provider registered (car-damage-c1f0i)');
+            } else {
+                console.log('⚠️  Roboflow provider skipped (API key not configured)');
+            }
+        } catch (error) {
+            console.log('⚠️  Roboflow provider failed to initialize:', error instanceof Error ? error.message : error);
         }
 
         // Set active provider
