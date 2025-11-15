@@ -4,39 +4,27 @@
  * Clean, professional, minimalist design
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Assessment } from '../types';
+import { useAssessments } from '../hooks/useAssessments';
 import { Button } from '../components/ui/button';
 import { Plus, ChevronRight, Calendar, Car, AlertCircle, Loader } from 'lucide-react';
 
 export function DashboardPage() {
     const navigate = useNavigate();
-    const [assessments, setAssessments] = useState<Assessment[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { assessments, loading, error, fetchAssessments } = useAssessments();
 
     useEffect(() => {
         loadAssessments();
     }, []);
 
     const loadAssessments = async () => {
-        setLoading(true);
-        setError(null);
         try {
-            // This would be a new API endpoint to list all assessments
-            // For now, we'll use localStorage or a mock
-            const saved = localStorage.getItem('assessments');
-            if (saved) {
-                setAssessments(JSON.parse(saved));
-            }
+            await fetchAssessments(1, 10);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load assessments';
-            setError(errorMessage);
             toast.error(errorMessage);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -51,13 +39,13 @@ export function DashboardPage() {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pickup_in_progress':
-                return 'bg-blue-50 border-blue-200';
+                return 'bg-slate-50 border-slate-200';
             case 'pickup_complete':
                 return 'bg-amber-50 border-amber-200';
             case 'return_in_progress':
-                return 'bg-purple-50 border-purple-200';
+                return 'bg-slate-50 border-slate-200';
             case 'completed':
-                return 'bg-green-50 border-green-200';
+                return 'bg-teal-50 border-teal-200';
             default:
                 return 'bg-gray-50 border-gray-200';
         }
@@ -76,13 +64,13 @@ export function DashboardPage() {
     const getStatusTextColor = (status: string) => {
         switch (status) {
             case 'pickup_in_progress':
-                return 'text-blue-700';
+                return 'text-slate-700';
             case 'pickup_complete':
                 return 'text-amber-700';
             case 'return_in_progress':
-                return 'text-purple-700';
+                return 'text-slate-700';
             case 'completed':
-                return 'text-green-700';
+                return 'text-teal-700';
             default:
                 return 'text-gray-700';
         }
@@ -118,11 +106,11 @@ export function DashboardPage() {
                         <Loader className="h-6 w-6 text-gray-400 animate-spin" />
                     </div>
                 ) : error ? (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-slate-600 mt-0.5 flex-shrink-0" />
                         <div>
-                            <h3 className="text-sm font-medium text-red-900">Error loading assessments</h3>
-                            <p className="text-sm text-red-700 mt-1">{error}</p>
+                            <h3 className="text-sm font-medium text-slate-900">Error loading assessments</h3>
+                            <p className="text-sm text-slate-700 mt-1">{error}</p>
                         </div>
                     </div>
                 ) : assessments.length === 0 ? (

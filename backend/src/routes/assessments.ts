@@ -8,7 +8,9 @@ import { Router } from 'express';
 import {
     createAssessmentHandler,
     getAssessmentHandler,
+    getAllAssessmentsHandler,
     uploadPhotoHandler,
+    deletePhotoHandler,
     getPhaseStatusHandler,
     analyzePickupHandler,
     analyzeReturnHandler,
@@ -66,6 +68,57 @@ const router = Router();
  *         description: Server error during assessment creation
  */
 router.post('/', createAssessmentHandler);
+
+/**
+ * @openapi
+ * /assessments:
+ *   get:
+ *     summary: Get all assessments
+ *     description: Retrieve all assessments with pagination support
+ *     tags:
+ *       - Assessments
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number (1-indexed)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of assessments per page
+ *     responses:
+ *       200:
+ *         description: Assessments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Assessment'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *       500:
+ *         description: Server error during fetch
+ */
+router.get('/', getAllAssessmentsHandler);
 
 /**
  * @openapi
@@ -175,6 +228,55 @@ router.get('/:id', getAssessmentHandler);
  *         description: Server error during upload
  */
 router.post('/:id/photos/:angle/:phase', uploadPhotoHandler);
+
+/**
+ * @openapi
+ * /assessments/{id}/photos/{angle}/{phase}:
+ *   delete:
+ *     summary: Delete a photo for a specific angle and phase
+ *     description: Remove a photo from the assessment. Also deletes from storage if available.
+ *     tags:
+ *       - Photos
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Assessment ID
+ *       - in: path
+ *         name: angle
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [front, rear, driver_side, passenger_side, roof]
+ *         description: Vehicle angle
+ *       - in: path
+ *         name: phase
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [pickup, return]
+ *         description: Assessment phase
+ *     responses:
+ *       200:
+ *         description: Photo deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                   example: "Photo deleted successfully"
+ *       404:
+ *         description: Photo or assessment not found
+ *       500:
+ *         description: Server error during deletion
+ */
+router.delete('/:id/photos/:angle/:phase', deletePhotoHandler);
 
 /**
  * @openapi

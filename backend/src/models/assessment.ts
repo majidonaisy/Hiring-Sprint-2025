@@ -307,6 +307,19 @@ function formatAssessment(data: any): Assessment {
     });
 
     (data.damages || []).forEach((damage: any) => {
+        const boundingBox =
+            damage.boundingBoxX !== null &&
+                damage.boundingBoxY !== null &&
+                damage.boundingBoxWidth !== null &&
+                damage.boundingBoxHeight !== null
+                ? {
+                    x: damage.boundingBoxX,
+                    y: damage.boundingBoxY,
+                    width: damage.boundingBoxWidth,
+                    height: damage.boundingBoxHeight,
+                }
+                : undefined;
+
         const damageObj: Damage = {
             id: damage.id,
             assessmentId: damage.assessmentId,
@@ -317,6 +330,7 @@ function formatAssessment(data: any): Assessment {
             location: damage.location,
             estimatedCost: damage.estimatedCost,
             aiConfidence: damage.aiConfidence,
+            boundingBox,
             createdAt: damage.createdAt,
         };
 

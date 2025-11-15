@@ -27,10 +27,10 @@ export function ReportPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex items-center justify-center">
+            <div className="min-h-screen bg-white p-8 flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mb-4"></div>
                         <p className="text-gray-600">Loading report...</p>
                     </div>
                 </div>
@@ -40,9 +40,9 @@ export function ReportPage() {
 
     if (error || !assessment) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex items-center justify-center">
+            <div className="min-h-screen bg-white p-8 flex items-center justify-center">
                 <div className="text-center">
-                    <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                    <AlertCircle className="h-12 w-12 text-slate-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-6">{error || 'Assessment not found'}</p>
                     <Button onClick={() => navigate('/')} variant="default">
                         Back to Assessments
@@ -55,11 +55,11 @@ export function ReportPage() {
     const getSeverityColor = (severity: string) => {
         switch (severity) {
             case 'minor':
-                return 'bg-yellow-50 border-yellow-200';
+                return 'bg-slate-50 border-slate-200';
             case 'moderate':
-                return 'bg-orange-50 border-orange-200';
+                return 'bg-amber-50 border-amber-200';
             case 'severe':
-                return 'bg-red-50 border-red-200';
+                return 'bg-rose-50 border-rose-200';
             default:
                 return 'bg-gray-50 border-gray-200';
         }
@@ -68,23 +68,23 @@ export function ReportPage() {
     const getSeverityBadge = (severity: string) => {
         switch (severity) {
             case 'minor':
-                return 'bg-yellow-100 text-yellow-800';
+                return 'bg-slate-100 text-slate-700';
             case 'moderate':
-                return 'bg-orange-100 text-orange-800';
+                return 'bg-amber-100 text-amber-700';
             case 'severe':
-                return 'bg-red-100 text-red-800';
+                return 'bg-rose-100 text-rose-700';
             default:
-                return 'bg-gray-100 text-gray-800';
+                return 'bg-gray-100 text-gray-700';
         }
     };
 
     const getAngleLabel = (angle: VehicleAngle): string => {
         const labels: Record<VehicleAngle, string> = {
-            front: '🚗 Front',
-            rear: '🔙 Rear',
-            driver_side: '👤 Driver Side',
-            passenger_side: '👥 Passenger Side',
-            roof: '⛓️ Roof',
+            front: 'Front',
+            rear: 'Rear',
+            driver_side: 'Driver Side',
+            passenger_side: 'Passenger Side',
+            roof: 'Roof',
         };
         return labels[angle];
     };
@@ -101,12 +101,12 @@ export function ReportPage() {
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getSeverityBadge(damage.severity)}`}>
                             {damage.severity.toUpperCase()}
                         </span>
-                        {isNew && <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">NEW</span>}
+                        {isNew && <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">NEW</span>}
                     </div>
                     <p className="font-medium text-gray-900 mb-1">{damage.description}</p>
                     <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div>📍 Location: {damage.location}</div>
-                        <div>🔍 Confidence: {(damage.aiConfidence * 100).toFixed(0)}%</div>
+                        <div>Location: {damage.location}</div>
+                        <div>Confidence: {(damage.aiConfidence * 100).toFixed(0)}%</div>
                     </div>
                 </div>
                 <div className="text-right ml-4">
@@ -133,22 +133,22 @@ export function ReportPage() {
                         <span className="text-xl">{getAngleLabel(angle)}</span>
                         <div className="flex gap-2">
                             {pickupDamages.length > 0 && (
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                                <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">
                                     Pickup: {pickupDamages.length}
                                 </span>
                             )}
                             {returnDamages.length > 0 && (
-                                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold">
+                                <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">
                                     Return: {returnDamages.length}
                                 </span>
                             )}
                             {hasNewDamages && (
-                                <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold flex items-center gap-1">
+                                <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold flex items-center gap-1">
                                     <AlertTriangle className="h-3 w-3" /> New: {newDamages.length}
                                 </span>
                             )}
                             {newDamages.length === 0 && returnDamages.length === 0 && (
-                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold flex items-center gap-1">
+                                <span className="px-2 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-semibold flex items-center gap-1">
                                     <CheckCircle2 className="h-3 w-3" /> No Changes
                                 </span>
                             )}
@@ -166,8 +166,8 @@ export function ReportPage() {
                                 {/* Pickup Photo */}
                                 {assessment.pickupPhotos?.[angle] && (
                                     <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-                                        <div className="bg-blue-50 px-4 py-2 border-b border-gray-200">
-                                            <p className="text-sm font-semibold text-blue-900">Pickup</p>
+                                        <div className="bg-slate-50 px-4 py-2 border-b border-gray-200">
+                                            <p className="text-sm font-semibold text-slate-900">Pickup</p>
                                         </div>
                                         <ImageWithBoundingBoxes
                                             src={assessment.pickupPhotos[angle].storagePath || ''}
@@ -180,8 +180,8 @@ export function ReportPage() {
                                 {/* Return Photo */}
                                 {assessment.returnPhotos?.[angle] && (
                                     <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-                                        <div className="bg-green-50 px-4 py-2 border-b border-gray-200">
-                                            <p className="text-sm font-semibold text-green-900">Return</p>
+                                        <div className="bg-slate-50 px-4 py-2 border-b border-gray-200">
+                                            <p className="text-sm font-semibold text-slate-900">Return</p>
                                         </div>
                                         <ImageWithBoundingBoxes
                                             src={assessment.returnPhotos[angle].storagePath || ''}
@@ -195,8 +195,8 @@ export function ReportPage() {
 
                         {newDamages.length > 0 && (
                             <div className="mb-6">
-                                <h4 className="font-bold text-red-900 mb-3 flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                                <h4 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
+                                    <AlertTriangle className="h-5 w-5 text-amber-600" />
                                     New Damages ({newDamages.length})
                                 </h4>
                                 <div className="space-y-0">
@@ -209,7 +209,7 @@ export function ReportPage() {
 
                         {pickupDamages.length > 0 && (
                             <div className="mb-6">
-                                <h4 className="font-bold text-blue-900 mb-3">Pickup Damages ({pickupDamages.length})</h4>
+                                <h4 className="font-bold text-slate-900 mb-3">Pickup Damages ({pickupDamages.length})</h4>
                                 <div className="space-y-0">
                                     {pickupDamages.map((damage) => (
                                         <DamageCard key={damage.id} damage={damage} />
@@ -220,7 +220,7 @@ export function ReportPage() {
 
                         {returnDamages.length > 0 && (
                             <div className="mb-6">
-                                <h4 className="font-bold text-purple-900 mb-3">Return Damages ({returnDamages.length})</h4>
+                                <h4 className="font-bold text-slate-900 mb-3">Return Damages ({returnDamages.length})</h4>
                                 <div className="space-y-0">
                                     {returnDamages.map((damage) => (
                                         <DamageCard key={damage.id} damage={damage} />
@@ -231,7 +231,7 @@ export function ReportPage() {
 
                         {newDamages.length === 0 && pickupDamages.length === 0 && returnDamages.length === 0 && (
                             <div className="text-center py-8 text-gray-500">
-                                <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
+                                <CheckCircle2 className="h-12 w-12 text-teal-600 mx-auto mb-2" />
                                 <p>No damages detected on this angle</p>
                             </div>
                         )}
@@ -254,7 +254,7 @@ export function ReportPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-white">
             {/* Header */}
             <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
                 <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -271,7 +271,7 @@ export function ReportPage() {
                             </Button>
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-900">
-                                    🚗 {assessment.vehicleName}
+                                    {assessment.vehicleName}
                                 </h1>
                                 <p className="text-sm text-gray-600">Assessment Report • ID: {assessment.id}</p>
                             </div>
@@ -304,36 +304,36 @@ export function ReportPage() {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     {/* Total Pickup Damages */}
-                    <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-200">
+                    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                         <div className="text-sm text-gray-600 font-semibold mb-1">Pickup Damages</div>
-                        <div className="text-3xl font-bold text-blue-900">
+                        <div className="text-3xl font-bold text-slate-900">
                             {assessment.damageCounts?.pickup || 0}
                         </div>
                         <div className="text-xs text-gray-500 mt-2">${costBreakdown.pickup.toFixed(2)}</div>
                     </div>
 
                     {/* Total Return Damages */}
-                    <div className="bg-white rounded-lg p-6 shadow-sm border border-purple-200">
+                    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                         <div className="text-sm text-gray-600 font-semibold mb-1">Return Damages</div>
-                        <div className="text-3xl font-bold text-purple-900">
+                        <div className="text-3xl font-bold text-slate-900">
                             {assessment.damageCounts?.return || 0}
                         </div>
                         <div className="text-xs text-gray-500 mt-2">${costBreakdown.return.toFixed(2)}</div>
                     </div>
 
                     {/* New Damages */}
-                    <div className={`bg-white rounded-lg p-6 shadow-sm border ${costBreakdown.new > 0 ? 'border-red-200' : 'border-green-200'}`}>
+                    <div className={`bg-white rounded-lg p-6 shadow-sm border ${costBreakdown.new > 0 ? 'border-amber-200' : 'border-teal-200'}`}>
                         <div className="text-sm text-gray-600 font-semibold mb-1">New Damages</div>
-                        <div className={`text-3xl font-bold ${costBreakdown.new > 0 ? 'text-red-900' : 'text-green-900'}`}>
+                        <div className={`text-3xl font-bold ${costBreakdown.new > 0 ? 'text-amber-900' : 'text-teal-900'}`}>
                             {assessment.damageCounts?.new || 0}
                         </div>
-                        <div className={`text-xs ${costBreakdown.new > 0 ? 'text-red-600' : 'text-green-600'} mt-2`}>
+                        <div className={`text-xs ${costBreakdown.new > 0 ? 'text-amber-600' : 'text-teal-600'} mt-2`}>
                             ${costBreakdown.new.toFixed(2)}
                         </div>
                     </div>
 
                     {/* Total Cost */}
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg p-6 shadow-sm text-white">
+                    <div className="bg-slate-800 rounded-lg p-6 shadow-sm text-white">
                         <div className="text-sm font-semibold mb-1 opacity-90">Total Damages</div>
                         <div className="text-3xl font-bold">
                             ${(costBreakdown.pickup + costBreakdown.return).toFixed(2)}
@@ -344,7 +344,7 @@ export function ReportPage() {
 
                 {/* Detailed Breakdown by Angle */}
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">📋 Damage Breakdown by Angle</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">Damage Breakdown by Angle</h2>
                     <div className="space-y-2">
                         {ANGLES.map((angle) => (
                             <AngleSection key={angle} angle={angle} />
@@ -354,10 +354,10 @@ export function ReportPage() {
 
                 {/* No Damages Message */}
                 {assessment.damageCounts?.new === 0 && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center mb-8">
-                        <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-green-900 mb-2">Perfect Condition!</h3>
-                        <p className="text-green-800">
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-8 text-center mb-8">
+                        <CheckCircle2 className="h-16 w-16 text-teal-600 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold text-teal-900 mb-2">Perfect Condition!</h3>
+                        <p className="text-teal-800">
                             No new damages detected between pickup and return. Vehicle is in excellent condition.
                         </p>
                     </div>
@@ -437,7 +437,7 @@ export function ReportPage() {
                     <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
                         Back to Assessments
                     </Button>
-                    <Button onClick={() => window.print()} variant="default" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={() => window.print()} variant="default" className="flex-1 bg-slate-800 hover:bg-slate-900">
                         Print Report
                     </Button>
                 </div>

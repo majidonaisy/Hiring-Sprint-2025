@@ -3,36 +3,51 @@
  * Handles file upload for a specific angle
  */
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Upload, X, CheckCircle2, AlertCircle } from 'lucide-react';
-import { VehicleAngle } from '../types';
+import { VehicleAngle, Photo } from '../types';
 import { Button } from './ui/button';
 
 interface PhotoUploaderProps {
     angle: VehicleAngle;
     onUpload: (file: File) => void;
+    onDelete?: () => void;
     isLoading?: boolean;
     isComplete?: boolean;
     uploadError?: string | null;
+    existingPhoto?: Photo | null;
 }
 
 export function PhotoUploader({
     angle,
     onUpload,
+    onDelete,
     isLoading = false,
     isComplete = false,
     uploadError = null,
+    existingPhoto = null,
 }: PhotoUploaderProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
 
+    // Initialize preview with existing photo if available
+    useEffect(() => {
+        if (existingPhoto?.storagePath) {
+            setPreview(existingPhoto.storagePath);
+            setFileName(existingPhoto.filename);
+        } else {
+            setPreview(null);
+            setFileName('');
+        }
+    }, [existingPhoto]);
+
     const angleLabels: Record<VehicleAngle, string> = {
-        front: '🔵 Front',
-        rear: '🔴 Rear',
-        driver_side: '🟡 Driver Side',
-        passenger_side: '🟢 Passenger Side',
-        roof: '⬜ Roof',
+        front: 'Front',
+        rear: 'Rear',
+        driver_side: 'Driver Side',
+        passenger_side: 'Passenger Side',
+        roof: 'Roof',
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +80,11 @@ export function PhotoUploader({
     };
 
     const handleClear = () => {
+        if (isComplete && onDelete) {
+            // If photo is complete, delete it from server
+            onDelete();
+        }
+        // Clear local preview
         setPreview(null);
         setFileName('');
         if (fileInputRef.current) {
@@ -73,18 +93,18 @@ export function PhotoUploader({
     };
 
     return (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors bg-white">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-slate-400 transition-colors bg-white">
             <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-gray-900">{angleLabels[angle]}</h3>
                     {isComplete && (
-                        <div className="flex items-center gap-2 text-green-600">
+                        <div className="flex items-center gap-2 text-teal-600">
                             <CheckCircle2 size={20} />
                         </div>
                     )}
                     {uploadError && (
-                        <div className="flex items-center gap-2 text-red-600">
+                        <div className="flex items-center gap-2 text-amber-600">
                             <AlertCircle size={20} />
                         </div>
                     )}
@@ -98,16 +118,29 @@ export function PhotoUploader({
                             alt={`Preview for ${angleLabels[angle]}`}
                             className="w-full h-48 object-cover rounded-md"
                         />
-                        {!isLoading && !isComplete && (
-                            <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={handleClear}
-                                className="absolute top-2 right-2 rounded-full"
-                                title="Remove image"
-                            >
-                                <X size={20} />
-                            </Button>
+                        {!isLoading && (
+                            <div className="absolute top-2 right-2 flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="rounded-full bg-white hover:bg-gray-100"
+                                    title="Replace image"
+                                >
+                                    <Upload size={20} />
+                                </Button>
+                                {isComplete && onDelete && (
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={handleClear}
+                                        className="rounded-full"
+                                        title="Remove image"
+                                    >
+                                        <X size={20} />
+                                    </Button>
+                                )}
+                            </div>
                         )}
                         {isLoading && (
                             <div className="absolute inset-0 bg-black bg-opacity-50 rounded-md flex items-center justify-center">
@@ -120,7 +153,7 @@ export function PhotoUploader({
                 ) : (
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="cursor-pointer text-center py-8 border border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                        className="cursor-pointer text-center py-8 border border-dashed border-gray-300 rounded-lg hover:border-slate-400 hover:bg-slate-50 transition-colors"
                     >
                         <Upload className="mx-auto mb-3 text-gray-400" size={32} />
                         <p className="text-gray-700 font-medium mb-1">Click to upload</p>
@@ -138,7 +171,7 @@ export function PhotoUploader({
 
                 {/* Error Message */}
                 {uploadError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 flex items-start gap-2">
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-700 flex items-start gap-2">
                         <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
                         <span>{uploadError}</span>
                     </div>

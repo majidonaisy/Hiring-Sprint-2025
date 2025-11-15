@@ -30,18 +30,18 @@ export function PhaseSection({
 }: PhaseSectionProps) {
     const phaseLabels = {
         pickup: {
-            title: '📍 Pickup Inspection',
+            title: 'Pickup Inspection',
             description: 'Upload photos of the vehicle at pickup',
-            color: 'bg-blue-50',
-            borderColor: 'border-blue-200',
-            buttonColor: 'bg-blue-600 hover:bg-blue-700',
+            color: 'bg-slate-50',
+            borderColor: 'border-slate-200',
+            buttonColor: 'bg-slate-600 hover:bg-slate-700',
         },
         return: {
-            title: '📤 Return Inspection',
+            title: 'Return Inspection',
             description: 'Upload photos of the vehicle upon return',
-            color: 'bg-green-50',
-            borderColor: 'border-green-200',
-            buttonColor: 'bg-green-600 hover:bg-green-700',
+            color: 'bg-slate-50',
+            borderColor: 'border-slate-200',
+            buttonColor: 'bg-slate-600 hover:bg-slate-700',
         },
     };
 
@@ -67,7 +67,7 @@ export function PhaseSection({
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                     <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-300"
+                        className="h-full bg-gradient-to-r from-slate-500 to-slate-600 transition-all duration-300"
                         style={{ width: `${completionPercentage}%` }}
                     />
                 </div>
@@ -89,8 +89,8 @@ export function PhaseSection({
 
             {/* Completion Status & Action */}
             {isComplete && (
-                <div className="flex items-center justify-between p-4 bg-white border border-green-300 rounded-lg">
-                    <p className="text-green-800 font-medium">✅ All angles uploaded!</p>
+                <div className="flex items-center justify-between p-4 bg-white border border-teal-300 rounded-lg">
+                    <p className="text-teal-800 font-medium">All angles uploaded!</p>
                     {onAnalyze && (
                         <Button
                             onClick={onAnalyze}

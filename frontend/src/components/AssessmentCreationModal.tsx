@@ -72,7 +72,7 @@ export function AssessmentCreationModal({
                             value={vehicleId}
                             onChange={(e) => setVehicleId(e.target.value)}
                             placeholder="e.g., CAR-001, ABC123"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-50"
                             disabled={isLoading}
                         />
                     </div>
@@ -87,14 +87,14 @@ export function AssessmentCreationModal({
                             value={vehicleName}
                             onChange={(e) => setVehicleName(e.target.value)}
                             placeholder="e.g., Toyota Camry 2020"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-50"
                             disabled={isLoading}
                         />
                     </div>
 
                     {/* Error Message */}
                     {error && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
                             {error}
                         </div>
                     )}
@@ -112,7 +112,7 @@ export function AssessmentCreationModal({
                         </Button>
                         <Button
                             type="submit"
-                            className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            className="flex-1 bg-slate-600 hover:bg-slate-700"
                             disabled={isLoading}
                         >
                             {isLoading ? 'Creating...' : 'Create'}

@@ -56,6 +56,16 @@ class ApiClient {
     }
 
     /**
+     * Get all assessments with pagination
+     */
+    async getAllAssessments(page: number = 1, limit: number = 10) {
+        const response = await this.client.get<ApiResponse<any>>('/assessments', {
+            params: { page, limit },
+        });
+        return response.data;
+    }
+
+    /**
      * Upload photo for an angle
      * Receives Supabase URL and stores in backend
      * Backend will use this URL to send to AI model
@@ -75,6 +85,16 @@ class ApiClient {
                 fileSize: file.size,
                 url: supabaseUrl, // Also send as url for clarity
             }
+        );
+        return response.data;
+    }
+
+    /**
+     * Delete photo for an angle
+     */
+    async deletePhoto(assessmentId: string, angle: string, phase: 'pickup' | 'return') {
+        const response = await this.client.delete<ApiResponse<any>>(
+            `/assessments/${assessmentId}/photos/${angle}/${phase}`
         );
         return response.data;
     }

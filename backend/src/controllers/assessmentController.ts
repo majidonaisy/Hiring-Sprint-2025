@@ -15,6 +15,8 @@ import {
     getPhaseStatus,
     getAssessment,
 } from '@/services/inspectionService';
+import { getAllAssessments } from '@/models/assessment';
+import { prisma } from '@/config/database';
 import { VehicleAngle, AssessmentPhase } from '@/types';
 
 // ============================================================================
@@ -80,6 +82,32 @@ export async function getAssessmentHandler(req: Request, res: Response): Promise
     }
 }
 
+/**
+ * GET /assessments
+ * Get all assessments with pagination
+ */
+export async function getAllAssessmentsHandler(req: Request, res: Response): Promise<void> {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const result = await getAllAssessments(page, limit);
+
+        res.status(200).json({
+            success: true,
+            data: result.assessments,
+            pagination: {
+                page,
+                limit,
+                total: result.total,
+                totalPages: Math.ceil(result.total / limit),
+            },
+        });
+    } catch (error) {
+        res.status(500).json(errorResponse(`Failed to fetch assessments: ${error}`));
+    }
+}
+
 // ============================================================================
 // PHOTO UPLOAD ENDPOINTS
 // ============================================================================
@@ -116,6 +144,52 @@ export async function uploadPhotoHandler(req: Request, res: Response): Promise<v
         res.status(201).json(successResponse(photo));
     } catch (error) {
         res.status(500).json(errorResponse(`Failed to upload photo: ${error}`));
+    }
+}
+
+/**
+ * DELETE /assessments/:id/photos/:angle/:phase
+ * Delete a photo for a specific angle and phase
+ */
+export async function deletePhotoHandler(req: Request, res: Response): Promise<void> {
+    try {
+        const { id, angle, phase } = req.params;
+
+        const validAngles: VehicleAngle[] = ['front', 'rear', 'driver_side', 'passenger_side', 'roof'];
+        const validPhases: AssessmentPhase[] = ['pickup', 'return'];
+
+        if (!validAngles.includes(angle as VehicleAngle)) {
+            res.status(400).json(errorResponse(`Invalid angle. Must be one of: ${validAngles.join(', ')}`));
+            return;
+        }
+
+        if (!validPhases.includes(phase as AssessmentPhase)) {
+            res.status(400).json(errorResponse(`Invalid phase. Must be one of: ${validPhases.join(', ')}`));
+            return;
+        }
+
+        console.log(`Deleting photo for assessment ${id}, angle ${angle}, phase ${phase}`);
+        // Find and delete the photo
+        const photoRecord = await prisma.photo.findFirst({
+            where: {
+                assessmentId: id,
+                angle: angle as VehicleAngle,
+                phase: phase as AssessmentPhase,
+            }
+        });
+
+        if (!photoRecord) {
+            res.status(404).json(errorResponse('Photo not found'));
+            return;
+        }
+
+        await prisma.photo.delete({
+            where: { id: photoRecord.id }
+        });
+
+        res.status(200).json({ success: true, message: 'Photo deleted successfully' });
+    } catch (error) {
+        res.status(500).json(errorResponse(`Failed to delete photo: ${error}`));
     }
 }
 

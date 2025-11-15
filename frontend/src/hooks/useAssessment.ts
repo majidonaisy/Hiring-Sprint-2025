@@ -21,6 +21,11 @@ interface UseAssessmentReturn {
         phase: AssessmentPhase,
         file: File
     ) => Promise<any>;
+    deletePhoto: (
+        assessmentId: string,
+        angle: VehicleAngle,
+        phase: AssessmentPhase
+    ) => Promise<any>;
     getPhaseStatus: (assessmentId: string, phase: AssessmentPhase) => Promise<any>;
     analyzePickup: (assessmentId: string) => Promise<any>;
     analyzeReturn: (assessmentId: string) => Promise<any>;
@@ -102,6 +107,25 @@ export function useAssessment(): UseAssessmentReturn {
                 );
 
                 // Step 3: Refresh assessment after successful upload
+                await fetchAssessment(assessmentId);
+                return response.data;
+            } catch (err) {
+                handleError(err);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [handleError, fetchAssessment]
+    );
+
+    const deletePhoto = useCallback(
+        async (assessmentId: string, angle: VehicleAngle, phase: AssessmentPhase) => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await apiClient.deletePhoto(assessmentId, angle, phase);
+                // Refresh assessment after deletion
                 await fetchAssessment(assessmentId);
                 return response.data;
             } catch (err) {
@@ -212,6 +236,7 @@ export function useAssessment(): UseAssessmentReturn {
         createAssessment,
         fetchAssessment,
         uploadPhoto,
+        deletePhoto,
         getPhaseStatus,
         analyzePickup,
         analyzeReturn,

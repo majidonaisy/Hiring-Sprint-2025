@@ -34,9 +34,21 @@ export function ImageWithBoundingBoxes({ src, alt, damages }: ImageWithBoundingB
         // Draw the image on canvas
         ctx.drawImage(img, 0, 0);
 
+        // Debug logging
+        console.log(`Drawing bounding boxes for ${damages.length} damages`);
+
         // Draw bounding boxes for damages
-        damages.forEach((damage) => {
-            if (!damage.boundingBox) return;
+        damages.forEach((damage, idx) => {
+            console.log(`Damage ${idx}:`, {
+                description: damage.description,
+                boundingBox: damage.boundingBox,
+                severity: damage.severity,
+            });
+
+            if (!damage.boundingBox) {
+                console.warn(`Damage ${idx} has no bounding box`);
+                return;
+            }
 
             const { x, y, width, height } = damage.boundingBox;
 
@@ -77,7 +89,12 @@ export function ImageWithBoundingBoxes({ src, alt, damages }: ImageWithBoundingB
     }, [isImageLoaded, damages]);
 
     const handleImageLoad = () => {
+        console.log(`Image loaded: ${src}`);
         setIsImageLoaded(true);
+    };
+
+    const handleImageError = () => {
+        console.error(`Failed to load image: ${src}`);
     };
 
     return (
@@ -89,6 +106,7 @@ export function ImageWithBoundingBoxes({ src, alt, damages }: ImageWithBoundingB
                 alt={alt}
                 className="hidden"
                 onLoad={handleImageLoad}
+                onError={handleImageError}
             />
 
             {/* Canvas with bounding boxes */}
@@ -98,10 +116,21 @@ export function ImageWithBoundingBoxes({ src, alt, damages }: ImageWithBoundingB
                 style={{ display: isImageLoaded ? 'block' : 'none' }}
             />
 
-            {/* Loading state or fallback */}
-            {!isImageLoaded && (
+            {/* Fallback display of image without bounding boxes */}
+            {!isImageLoaded && src && (
+                <img
+                    src={src}
+                    alt={alt}
+                    className="w-full h-auto block"
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                />
+            )}
+
+            {/* Loading state or error */}
+            {!isImageLoaded && !src && (
                 <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
-                    <div className="text-gray-400">Loading image...</div>
+                    <div className="text-gray-400">No image available</div>
                 </div>
             )}
         </div>

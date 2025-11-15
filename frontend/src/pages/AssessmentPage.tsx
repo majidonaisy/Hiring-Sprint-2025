@@ -41,6 +41,7 @@ export function AssessmentPage() {
         loading,
         fetchAssessment,
         uploadPhoto,
+        deletePhoto,
         analyzePickup,
         analyzeReturn,
         comparePhotos,
@@ -64,6 +65,27 @@ export function AssessmentPage() {
             fetchAssessment(assessmentId);
         }
     }, [assessmentId, assessment, fetchAssessment]);
+
+    // Auto-switch to return phase when pickup is complete
+    useEffect(() => {
+        if (assessment?.status === 'pickup_complete' && currentPhase === 'pickup') {
+            setCurrentPhase('return');
+        }
+    }, [assessment?.status]);
+
+    // Auto-navigate to report when assessment is completed
+    useEffect(() => {
+        if (assessment?.status === 'completed' && assessment?.id) {
+            navigate(`/report/${assessment.id}`);
+        }
+    }, [assessment?.status, assessment?.id, navigate]);
+
+    // Refetch assessment when phase changes to update image boxes
+    useEffect(() => {
+        if (assessment?.id) {
+            fetchAssessment(assessment.id);
+        }
+    }, [currentPhase]);
 
     useEffect(() => {
         if (assessment) {
@@ -130,6 +152,21 @@ export function AssessmentPage() {
             const errorMessage = err instanceof Error ? err.message : 'Upload failed';
             setUploadErrors((prev) => ({ ...prev, [angle]: errorMessage }));
             toast.error(`Upload failed: ${errorMessage}`, { id: toastId });
+        } finally {
+            setLoadingAngle(null);
+        }
+    };
+
+    const handleDeletePhoto = async (angle: VehicleAngle) => {
+        if (!assessment?.id) return;
+        setLoadingAngle(angle);
+        const toastId = toast.loading(`Deleting photo...`);
+        try {
+            await deletePhoto(assessment.id, angle, currentPhase);
+            toast.success(`Photo deleted`, { id: toastId });
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Delete failed';
+            toast.error(`Delete failed: ${errorMessage}`, { id: toastId });
         } finally {
             setLoadingAngle(null);
         }
@@ -261,16 +298,23 @@ export function AssessmentPage() {
 
                 {/* Photos Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
-                    {ANGLES.map((angle) => (
-                        <PhotoUploader
-                            key={angle}
-                            angle={angle}
-                            onUpload={(file: File) => handlePhotoUpload(angle, file)}
-                            isLoading={loadingAngle === angle}
-                            isComplete={completedAngles.includes(angle)}
-                            uploadError={uploadErrors[angle]}
-                        />
-                    ))}
+                    {ANGLES.map((angle) => {
+                        const phasePhotos = currentPhase === 'pickup' ? assessment.pickupPhotos : assessment.returnPhotos;
+                        const existingPhoto = phasePhotos?.[angle];
+
+                        return (
+                            <PhotoUploader
+                                key={angle}
+                                angle={angle}
+                                onUpload={(file: File) => handlePhotoUpload(angle, file)}
+                                onDelete={() => handleDeletePhoto(angle)}
+                                isLoading={loadingAngle === angle}
+                                isComplete={completedAngles.includes(angle)}
+                                uploadError={uploadErrors[angle]}
+                                existingPhoto={existingPhoto}
+                            />
+                        );
+                    })}
                 </div>
 
                 {/* Action Buttons */}
