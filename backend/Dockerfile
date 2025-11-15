@@ -42,21 +42,18 @@ COPY --from=builder /app/prisma ./prisma
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
-# Copy .env (will be overridden by runtime env vars)
-COPY .env .env.example ./
-
 # Create upload directory
 RUN mkdir -p uploads database
 
 # Expose port
-EXPOSE 3001
+EXPOSE 5001
 
 # Set environment
 ENV NODE_ENV=production
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+    CMD node -e "require('http').get('http://localhost:5001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
