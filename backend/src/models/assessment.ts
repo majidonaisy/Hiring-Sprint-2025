@@ -4,7 +4,7 @@
  * Handles CRUD and angle-based queries
  */
 
-import { prisma } from '@/config/database';
+import { prisma } from '../config/database.js';
 import {
     Assessment,
     AssessmentStatus,
@@ -12,7 +12,7 @@ import {
     VehicleAngle,
     Photo,
     Damage,
-} from '@/types';
+} from '../types/index.js';
 
 // ============================================================================
 // CREATE OPERATIONS

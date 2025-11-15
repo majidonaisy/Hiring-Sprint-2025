@@ -4,8 +4,8 @@
  * Handles angle-based damage storage and retrieval
  */
 
-import { prisma } from '@/config/database';
-import { Damage, VehicleAngle, AssessmentPhase, DamageSeverity } from '@/types';
+import { prisma } from '../config/database.js';
+import { Damage, VehicleAngle, AssessmentPhase, DamageSeverity } from '../types/index.js';
 
 // ============================================================================
 // CREATE OPERATIONS

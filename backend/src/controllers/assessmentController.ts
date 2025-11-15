@@ -14,10 +14,10 @@ import {
     getDamageSummary,
     getPhaseStatus,
     getAssessment,
-} from '@/services/inspectionService';
-import { getAllAssessments } from '@/models/assessment';
-import { prisma } from '@/config/database';
-import { VehicleAngle, AssessmentPhase } from '@/types';
+} from '../services/inspectionService.js';
+import { getAllAssessments } from '../models/assessment.js';
+import { prisma } from '../config/database.js';
+import { VehicleAngle, AssessmentPhase } from '../types/index.js';
 
 // ============================================================================
 // RESPONSE HELPERS

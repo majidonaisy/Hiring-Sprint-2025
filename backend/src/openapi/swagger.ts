@@ -6,7 +6,7 @@
 
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import openApiSpec from '@/openapi/spec';
+import openApiSpec from './spec.js';
 import { Express } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';

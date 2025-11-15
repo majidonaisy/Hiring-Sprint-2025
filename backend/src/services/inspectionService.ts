@@ -14,13 +14,13 @@ import {
     markAssessmentCompleted,
     validateAllAnglesComplete,
     getMissingAngles,
-} from '@/models/assessment';
+} from '../models/assessment.js';
 
 import {
     savePhoto,
     getPhotoByAngleAndPhase,
     deletePhotoByAngleAndPhase,
-} from '@/models/photo';
+} from '../models/photo.js';
 
 import {
     saveDamage,
@@ -28,10 +28,10 @@ import {
     getNewDamages,
     calculateTotalDamageCost,
     markDamageAsNew,
-} from '@/models/damage';
+} from '../models/damage.js';
 
-import { Assessment, VehicleAngle, AssessmentPhase, Damage, Photo } from '@/types';
-import { aiService } from './aiService';
+import { Assessment, VehicleAngle, AssessmentPhase, Damage, Photo } from '../types/index.js';
+import { aiService } from './aiService.js';
 
 // ============================================================================
 // ASSESSMENT LIFECYCLE

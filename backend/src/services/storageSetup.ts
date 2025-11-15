@@ -3,10 +3,10 @@
  * Initialize and configure storage providers on server startup
  */
 
-import { StorageProviderRegistry } from './storage/storageProvider';
-import { cloudinaryProvider } from './storage/cloudinaryProvider';
-import { localStorageProvider } from './storage/localStorageProvider';
-import { supabaseProvider } from './storage/supabaseProvider';
+import { StorageProviderRegistry } from './storage/storageProvider.js';
+import { cloudinaryProvider } from './storage/cloudinaryProvider.js';
+import { localStorageProvider } from './storage/localStorageProvider.js';
+import { supabaseProvider } from './storage/supabaseProvider.js';
 
 /**
  * Global storage registry instance

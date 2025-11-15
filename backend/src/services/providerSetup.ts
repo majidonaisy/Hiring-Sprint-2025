@@ -4,10 +4,10 @@
  * Selects active provider based on environment configuration
  */
 
-import { providerRegistry } from '@/services/aiProvider';
-import { mockProvider } from '@/services/providers/mockProvider';
-import { huggingfaceProvider } from '@/services/providers/huggingfaceProvider';
-import { roboflowProvider } from '@/services/providers/roboflowProvider';
+import { providerRegistry } from './aiProvider.js';
+import { mockProvider } from './providers/mockProvider.js';
+import { huggingfaceProvider } from './providers/huggingfaceProvider.js';
+import { roboflowProvider } from './providers/roboflowProvider.js';
 
 /**
  * Initialize all available AI providers

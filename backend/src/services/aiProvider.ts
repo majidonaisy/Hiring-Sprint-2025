@@ -4,7 +4,7 @@
  * Supports: Mock (current), Hugging Face, Roboflow, custom providers
  */
 
-import { Photo, VehicleAngle, AssessmentPhase } from '@/types';
+import { Photo, VehicleAngle, AssessmentPhase } from '../types/index.js';
 
 export interface DetectedDamage {
     description: string;

@@ -2,5 +2,5 @@
  * Services Export
  */
 
-export { aiService } from './aiService';
-export * from './inspectionService';
+export { aiService } from './aiService.js';
+export * from './inspectionService.js';

@@ -4,10 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import { setupSwaggerUI } from './openapi/swagger';
-import assessmentRoutes from './routes/assessments';
-import initializeAIProviders from './services/providerSetup';
-import { initializeStorageProviders } from './services/storageSetup';
+import { setupSwaggerUI } from './openapi/swagger.js';
+import assessmentRoutes from './routes/assessments.js';
+import initializeAIProviders from './services/providerSetup.js';
+import { initializeStorageProviders } from './services/storageSetup.js';
 
 // Load environment variables
 dotenv.config();

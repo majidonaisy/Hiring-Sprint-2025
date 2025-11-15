@@ -4,8 +4,8 @@
  * Implements IAIProvider interface
  */
 
-import { Photo, VehicleAngle, AssessmentPhase } from '@/types';
-import { IAIProvider, DetectedDamage, PhotoAnalysis } from '@/services/aiProvider';
+import { Photo, VehicleAngle, AssessmentPhase } from '../../types/index.js';
+import { IAIProvider, DetectedDamage, PhotoAnalysis } from '../aiProvider.js';
 
 /**
  * Mock provider for testing and development

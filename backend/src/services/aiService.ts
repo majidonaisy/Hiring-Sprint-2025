@@ -4,9 +4,9 @@
  * Uses the provider registry to route to configured AI provider (Roboflow, HuggingFace, etc.)
  */
 
-import { Photo, VehicleAngle, AssessmentPhase } from '@/types';
-import { providerRegistry } from '@/services/aiProvider';
-import { PhotoAnalysis } from '@/services/aiProvider';
+import { Photo, VehicleAngle, AssessmentPhase } from '../types/index.js';
+import { providerRegistry } from './aiProvider.js';
+import { PhotoAnalysis } from './aiProvider.js';
 
 /**
  * AI Service - routes analysis to active provider

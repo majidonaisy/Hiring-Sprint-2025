@@ -3,6 +3,6 @@
  * Central export point for all database models
  */
 
-export * from './assessment';
-export * from './photo';
-export * from './damage';
+export * from './assessment.js';
+export * from './photo.js';
+export * from './damage.js';

@@ -4,8 +4,8 @@
  * Handles angle-based photo storage and retrieval
  */
 
-import { prisma } from '@/config/database';
-import { Photo, VehicleAngle, AssessmentPhase } from '@/types';
+import { prisma } from '../config/database.js';
+import { Photo, VehicleAngle, AssessmentPhase } from '../types/index.js';
 
 /**
  * Convert database row to Photo object

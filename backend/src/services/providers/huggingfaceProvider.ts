@@ -5,8 +5,8 @@
  */
 
 import axios from 'axios';
-import { Photo, VehicleAngle, AssessmentPhase } from '@/types';
-import { IAIProvider, PhotoAnalysis, DetectedDamage } from '../aiProvider';
+import { Photo, VehicleAngle, AssessmentPhase } from '../../types/index.js';
+import { IAIProvider, PhotoAnalysis, DetectedDamage } from '../aiProvider.js';
 
 export class HuggingFaceProvider implements IAIProvider {
     name = 'huggingface';

@@ -16,7 +16,7 @@ import {
     analyzeReturnHandler,
     comparePhotosHandler,
     getDamageSummaryHandler,
-} from '@/controllers/assessmentController';
+} from '../controllers/assessmentController.js';
 
 const router = Router();
 
