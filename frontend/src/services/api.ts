@@ -37,6 +37,22 @@ class ApiClient {
     }
 
     /**
+     * Generic GET request
+     */
+    async get<T = any>(url: string) {
+        const response = await this.client.get<T>(url);
+        return response.data;
+    }
+
+    /**
+     * Generic POST request
+     */
+    async post<T = any>(url: string, data?: any) {
+        const response = await this.client.post<T>(url, data);
+        return response.data;
+    }
+
+    /**
      * Create a new assessment
      */
     async createAssessment(vehicleId: string, vehicleName: string) {

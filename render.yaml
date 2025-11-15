@@ -18,6 +18,14 @@ services:
         fromDatabase:
           name: inspections_db
           property: connectionString
+      - key: DATABASE_POOL_MIN
+        value: "2"
+      - key: DATABASE_POOL_MAX
+        value: "10"
+      - key: DATABASE_CONNECTION_TIMEOUT
+        value: "20000"
+      - key: DATABASE_POOL_TIMEOUT
+        value: "20000"
       - key: RATE_LIMIT_WINDOW_MS
         value: "900000"
       - key: RATE_LIMIT_MAX_REQUESTS

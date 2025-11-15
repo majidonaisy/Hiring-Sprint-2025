@@ -4,16 +4,18 @@
  * Clean, professional, minimalist design
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAssessments } from '../hooks/useAssessments';
 import { Button } from '../components/ui/button';
-import { Plus, ChevronRight, Calendar, Car, AlertCircle, Loader } from 'lucide-react';
+import { Plus, ChevronRight, Calendar, Car, AlertCircle, Loader, TestTube, Download } from 'lucide-react';
+import { createDemoAssessment } from '../services/demoMode';
 
 export function DashboardPage() {
     const navigate = useNavigate();
     const { assessments, loading, error, fetchAssessments } = useAssessments();
+    const [creatingDemo, setCreatingDemo] = useState(false);
 
     useEffect(() => {
         loadAssessments();
@@ -34,6 +36,25 @@ export function DashboardPage() {
 
     const handleNewAssessment = () => {
         navigate('/assessment');
+    };
+
+    const handleDemoMode = async () => {
+        setCreatingDemo(true);
+
+        try {
+            const assessmentId = await createDemoAssessment();
+
+            // Navigate to the demo assessment
+            setTimeout(() => {
+                navigate(`/assessment/${assessmentId}`);
+            }, 1000);
+
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create demo assessment';
+            toast.error(errorMessage);
+        } finally {
+            setCreatingDemo(false);
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -88,19 +109,58 @@ export function DashboardPage() {
                                 {assessments.length} {assessments.length === 1 ? 'assessment' : 'assessments'}
                             </p>
                         </div>
-                        <Button
-                            onClick={handleNewAssessment}
-                            className="bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2"
-                        >
-                            <Plus className="h-4 w-4" />
-                            New Assessment
-                        </Button>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleDemoMode}
+                                disabled={creatingDemo}
+                                className="bg-teal-600 text-white hover:bg-teal-700 flex items-center gap-2"
+                            >
+                                {creatingDemo ? (
+                                    <Loader className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <TestTube className="h-4 w-4" />
+                                )}
+                                {creatingDemo ? 'Creating Demo...' : 'Try Demo'}
+                            </Button>
+                            <Button
+                                onClick={handleNewAssessment}
+                                className="bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2"
+                            >
+                                <Plus className="h-4 w-4" />
+                                New Assessment
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Demo Instructions Banner */}
+                <div className="mb-6 rounded-lg border border-teal-200 bg-teal-50 p-4">
+                    <div className="flex items-start gap-3">
+                        <TestTube className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                            <h3 className="text-sm font-medium text-teal-900">Test the Full Workflow</h3>
+                            <p className="text-sm text-teal-700 mt-1">
+                                Click "Try Demo" to see a pre-filled assessment, or download sample images to test the complete flow yourself.
+                            </p>
+                            <p className="text-sm text-teal-700 mt-1">I have supplied non-damaged images that you can use to simulate a vehicle assessment without any damages. With just one damaged image, you can see how the system detects and reports issues.</p>
+
+                            <div className="mt-3 flex gap-3">
+                                <a
+                                    href="https://jvpwfcwkechexlmrfikm.supabase.co/storage/v1/object/public/car-images/test-data/sample-images.zip"
+                                    download="sample-images.zip"
+                                    className="text-sm font-medium text-teal-700 hover:text-teal-800 flex items-center gap-1"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Download Sample Images (ZIP)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
                         <Loader className="h-6 w-6 text-gray-400 animate-spin" />
