@@ -21,7 +21,10 @@ export function setupSwaggerUI(app: Express): void {
     // Swagger options
     const options = {
         definition: openApiSpec,
-        apis: [path.join(__dirname, '../routes/*.ts')], // Scans route files for JSDoc comments
+        apis: [
+            path.join(__dirname, '../routes/*.js'),
+            path.join(__dirname, '../routes/*.ts')
+        ], // Scans route files for JSDoc comments
     };
 
     // Generate Swagger spec from JSDoc comments (combines with explicit spec)
