@@ -1,62 +1,57 @@
 # Multi-stage Dockerfile for Node.js Express Backend
 # Stage 1: Build Stage
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files (including package-lock.json)
-COPY package.json package-lock.json ./
+# Copy package files
+COPY package.json ./
+COPY package-lock.json ./
 
-# Install dependencies
-RUN npm ci --omit=dev
+# Install ALL dependencies (need dev deps for TypeScript build)
+RUN npm install
 
-# Copy Prisma schema for build
+# Copy Prisma schema
 COPY prisma ./prisma
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Copy source code
-COPY src ./src
+# Copy TypeScript config and source
 COPY tsconfig.json ./
+COPY src ./src
 
-# Build TypeScript
-RUN npm install --save-dev typescript ts-node @types/node && \
-    npx tsc && \
-    npm prune --omit=dev
+# Build TypeScript to JavaScript
+RUN npm run build
 
-# Stage 2: Runtime Stage
-FROM node:22-alpine
+# Stage 2: Production Runtime
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Copy package files
+COPY package.json ./
+COPY package-lock.json ./
 
-# Copy node_modules from builder
-COPY --from=builder /app/node_modules ./node_modules
+# Install ONLY production dependencies
+RUN npm ci --omit=dev
 
-# Copy Prisma from builder
+# Copy Prisma schema and client from builder
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Copy built application
+# Copy compiled JavaScript from builder
 COPY --from=builder /app/dist ./dist
 
-# Create upload directory
+# Create required directories
 RUN mkdir -p uploads database
 
-# Expose port
+# Expose application port
 EXPOSE 5001
 
-# Set environment
+# Set production environment
 ENV NODE_ENV=production
+ENV PORT=5001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:5001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start application
+# Start the application
 CMD ["node", "dist/server.js"]
