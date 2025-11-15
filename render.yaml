@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: vehicle-inspection-backend
+    env: docker
+    repo: https://github.com/majidonaisy/Hiring-Sprint-2025
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: CORS_ORIGIN
+        scope: WEB
+        value: https://your-frontend-url.vercel.app
+      - key: DATABASE_URL
+        scope: WEB
+        fromDatabase:
+          name: inspections_db
+          property: connectionString
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "100"
+      - key: UPLOAD_DIR
+        value: ./uploads
+
+databases:
+  - name: inspections_db
+    databaseName: inspections
+    user: inspections_user
+    plan: free

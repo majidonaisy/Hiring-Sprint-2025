@@ -1,0 +1,20 @@
+# Docker ignore file - speeds up build
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.*.local
+dist/
+coverage/
+.git
+.gitignore
+.DS_Store
+*.md
+.vscode/
+.idea/
+database/inspections.db
+uploads/*
+!uploads/.gitkeep
