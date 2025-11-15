@@ -1,11 +1,11 @@
 # Multi-stage Dockerfile for Node.js Express Backend
 # Stage 1: Build Stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (including package-lock.json)
+COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm ci --omit=dev
@@ -26,7 +26,7 @@ RUN npm install --save-dev typescript ts-node @types/node && \
     npm prune --omit=dev
 
 # Stage 2: Runtime Stage
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
