@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { DashboardPage } from './pages/DashboardPage';
 import { AssessmentPage } from './pages/AssessmentPage';
 import { ReportPage } from './pages/ReportPage';
 
@@ -17,7 +18,8 @@ function App() {
                 expand
             />
             <Routes>
-                <Route path="/" element={<AssessmentPage />} />
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/assessment" element={<AssessmentPage />} />
                 <Route path="/assessment/:assessmentId" element={<AssessmentPage />} />
                 <Route path="/report/:assessmentId" element={<ReportPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

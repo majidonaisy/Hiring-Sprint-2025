@@ -137,7 +137,8 @@ export async function analyzePickupPhotos(assessmentId: string): Promise<Assessm
                 damage.estimatedCost,
                 damage.confidence,
                 photo.id,
-                false // Not new in pickup phase
+                false, // Not new in pickup phase
+                damage.boundingBox
             );
         }
     }
@@ -193,7 +194,8 @@ export async function analyzeReturnPhotos(assessmentId: string): Promise<Assessm
                 damage.estimatedCost,
                 damage.confidence,
                 photo.id,
-                false // Will be marked as new after comparison
+                false, // Will be marked as new after comparison
+                damage.boundingBox
             );
         }
     }

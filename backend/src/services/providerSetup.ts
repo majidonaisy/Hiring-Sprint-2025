@@ -5,7 +5,7 @@
  */
 
 import { providerRegistry } from '@/services/aiProvider';
-import { aiService as mockProvider } from '@/services/aiService';
+import { mockProvider } from '@/services/providers/mockProvider';
 import { huggingfaceProvider } from '@/services/providers/huggingfaceProvider';
 import { roboflowProvider } from '@/services/providers/roboflowProvider';
 

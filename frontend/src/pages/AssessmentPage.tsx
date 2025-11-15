@@ -1,43 +1,54 @@
 /**
- * AssessmentPage Component
- * Main assessment workflow page
+ * AssessmentPage Component (Simplified)
+ * Clean, professional workflow for vehicle inspections
  */
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAssessment } from '../hooks/useAssessment';
-import { VehicleAngle, AssessmentPhase } from '../types';
+import { VehicleAngle, AssessmentPhase, Assessment } from '../types';
 import { AssessmentCreationModal } from '../components/AssessmentCreationModal';
-import { PhaseSection } from '../components/PhaseSection';
+import { PhotoUploader } from '../components/PhotoUploader';
 import { Button } from '../components/ui/button';
-import { ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader } from 'lucide-react';
 
 const ANGLES: VehicleAngle[] = ['front', 'rear', 'driver_side', 'passenger_side', 'roof'];
 
-interface AssessmentPageProps {
-    assessmentIdParam?: string;
-}
+// Helper to save assessment to localStorage
+const saveAssessmentLocally = (assessment: Assessment) => {
+    try {
+        const saved = localStorage.getItem('assessments');
+        const assessments = saved ? JSON.parse(saved) : [];
+        const index = assessments.findIndex((a: any) => a.id === assessment.id);
+        if (index >= 0) {
+            assessments[index] = assessment;
+        } else {
+            assessments.push(assessment);
+        }
+        localStorage.setItem('assessments', JSON.stringify(assessments));
+    } catch (err) {
+        console.error('Failed to save assessment locally:', err);
+    }
+};
 
-export function AssessmentPage({ assessmentIdParam }: AssessmentPageProps) {
-    const { assessmentId: paramAssessmentId } = useParams<{ assessmentId?: string }>();
+export function AssessmentPage() {
+    const { assessmentId } = useParams<{ assessmentId?: string }>();
     const navigate = useNavigate();
 
-    const assessmentId = assessmentIdParam || paramAssessmentId;
     const {
         assessment,
         loading,
-        error,
-        createAssessment,
         fetchAssessment,
         uploadPhoto,
         analyzePickup,
         analyzeReturn,
         comparePhotos,
+        createAssessment,
     } = useAssessment();
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(!assessmentId);
     const [currentPhase, setCurrentPhase] = useState<AssessmentPhase>('pickup');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(!assessmentId);
     const [uploadErrors, setUploadErrors] = useState<Record<VehicleAngle, string | null>>({
         front: null,
         rear: null,
@@ -48,39 +59,73 @@ export function AssessmentPage({ assessmentIdParam }: AssessmentPageProps) {
     const [loadingAngle, setLoadingAngle] = useState<VehicleAngle | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // Fetch assessment if ID provided
     useEffect(() => {
         if (assessmentId && !assessment) {
             fetchAssessment(assessmentId);
         }
     }, [assessmentId, assessment, fetchAssessment]);
 
-    // Determine completed angles for current phase
+    useEffect(() => {
+        if (assessment) {
+            saveAssessmentLocally(assessment);
+        }
+    }, [assessment]);
+
     const getCompletedAngles = (): VehicleAngle[] => {
         if (!assessment) return [];
-
         const phasePhotos =
             currentPhase === 'pickup'
                 ? assessment.pickupPhotos
                 : assessment.returnPhotos;
-
         return ANGLES.filter((angle) => phasePhotos?.[angle] !== null);
     };
 
     const completedAngles = getCompletedAngles();
+    const allAnglesComplete = completedAngles.length === ANGLES.length;
+    const isAssessmentComplete = assessment?.status === 'completed';
 
-    // Handle photo upload
+    const handleActionButton = async () => {
+        // If assessment is complete, navigate to report
+        if (isAssessmentComplete) {
+            navigate(`/report/${assessment?.id}`);
+            return;
+        }
+
+        // Otherwise, analyze the current phase
+        if (currentPhase === 'pickup') {
+            await handleAnalyzePickup();
+        } else {
+            await handleAnalyzeReturn();
+        }
+    };
+
+    const getActionButtonLabel = () => {
+        if (isAssessmentComplete) {
+            return 'View Report';
+        }
+        return currentPhase === 'pickup' ? 'Analyze Pickup' : 'Analyze Return';
+    };
+
+    const handleCreateAssessment = async (vehicleId: string, vehicleName: string) => {
+        const toastId = toast.loading('Creating assessment...');
+        try {
+            await createAssessment(vehicleId, vehicleName);
+            toast.success('Assessment created', { id: toastId });
+            setIsCreateModalOpen(false);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create assessment';
+            toast.error(`Failed: ${errorMessage}`, { id: toastId });
+        }
+    };
+
     const handlePhotoUpload = async (angle: VehicleAngle, file: File) => {
         if (!assessment?.id) return;
-
         setLoadingAngle(angle);
         setUploadErrors((prev) => ({ ...prev, [angle]: null }));
-
-        const toastId = toast.loading(`Uploading ${angle} photo...`);
-
+        const toastId = toast.loading(`Uploading photo...`);
         try {
             await uploadPhoto(assessment.id, angle, currentPhase, file);
-            toast.success(`${angle} photo uploaded successfully!`, { id: toastId });
+            toast.success(`Photo uploaded`, { id: toastId });
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Upload failed';
             setUploadErrors((prev) => ({ ...prev, [angle]: errorMessage }));
@@ -90,204 +135,180 @@ export function AssessmentPage({ assessmentIdParam }: AssessmentPageProps) {
         }
     };
 
-    // Handle pickup analysis
     const handleAnalyzePickup = async () => {
         if (!assessment?.id) return;
-
         setIsAnalyzing(true);
-        const toastId = toast.loading('Analyzing pickup photos with AI...');
-
+        const toastId = toast.loading('Analyzing photos...');
         try {
             await analyzePickup(assessment.id);
-            toast.success('✅ Pickup analysis complete! Moving to return phase...', { id: toastId });
-            // Move to return phase after successful analysis
+            toast.success('Analysis complete', { id: toastId });
             setCurrentPhase('return');
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Analysis failed';
             toast.error(`Analysis failed: ${errorMessage}`, { id: toastId });
-            console.error('Analysis failed:', err);
         } finally {
             setIsAnalyzing(false);
         }
     };
 
-    // Handle return analysis
     const handleAnalyzeReturn = async () => {
         if (!assessment?.id) return;
-
         setIsAnalyzing(true);
-        const toastId = toast.loading('Analyzing return photos and comparing damages...');
-
+        const toastId = toast.loading('Analyzing and comparing...');
         try {
             await analyzeReturn(assessment.id);
-            toast.success('✅ Return analysis complete!', { id: toastId });
-
-            // Compare photos
-            const compareToastId = toast.loading('Generating comparison report...');
+            toast.success('Analysis complete', { id: toastId });
             await comparePhotos(assessment.id);
-            toast.success('📊 Report generated! Redirecting...', { id: compareToastId });
-
-            // Navigate to report
             setTimeout(() => navigate(`/report/${assessment.id}`), 1000);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Analysis failed';
             toast.error(`Analysis failed: ${errorMessage}`, { id: toastId });
-            console.error('Analysis failed:', err);
         } finally {
             setIsAnalyzing(false);
         }
     };
 
-    // Handle create assessment
-    const handleCreateAssessment = async (vehicleId: string, vehicleName: string) => {
-        const toastId = toast.loading(`Creating assessment for ${vehicleName}...`);
-
-        try {
-            await createAssessment(vehicleId, vehicleName);
-            toast.success(`✅ Assessment created for ${vehicleName}!`, { id: toastId });
-            setIsCreateModalOpen(false);
-            // URL will update automatically via effect
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to create assessment';
-            toast.error(`Failed to create assessment: ${errorMessage}`, { id: toastId });
-            console.error('Failed to create assessment:', err);
-        }
-    };
-
-    // Show create modal if no assessment
     if (!assessment) {
         return (
             <>
                 <AssessmentCreationModal
                     isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
+                    onClose={() => {
+                        setIsCreateModalOpen(false);
+                        navigate('/');
+                    }}
                     onCreate={handleCreateAssessment}
                     isLoading={loading}
                 />
-                <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-                    <div className="text-center">
-                        <div className="inline-block p-12 bg-white rounded-lg shadow-lg">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                                🚗 Vehicle Assessment
-                            </h1>
-                            <p className="text-gray-600 mb-8">
-                                Start a new inspection to begin
-                            </p>
-                            <Button
-                                onClick={() => setIsCreateModalOpen(true)}
-                                className="bg-blue-600 hover:bg-blue-700"
-                                size="lg"
-                            >
-                                Create New Assessment
-                            </Button>
-                        </div>
+                {!isCreateModalOpen && (
+                    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+                        {loading ? (
+                            <div className="text-center">
+                                <Loader className="h-8 w-8 animate-spin text-gray-400 mx-auto mb-4" />
+                                <p className="text-gray-600">Loading assessment...</p>
+                            </div>
+                        ) : (
+                            <div className="text-center max-w-md">
+                                <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+                                    Vehicle Assessment
+                                </h1>
+                                <p className="text-gray-600 mb-8">
+                                    Create a new assessment to begin inspecting a vehicle
+                                </p>
+                                <Button
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    className="bg-gray-900 text-white hover:bg-gray-800 w-full"
+                                >
+                                    Start New Assessment
+                                </Button>
+                                <Button
+                                    onClick={() => navigate('/')}
+                                    variant="outline"
+                                    className="w-full mt-3"
+                                >
+                                    Back to Assessments
+                                </Button>
+                            </div>
+                        )}
                     </div>
-                </div>
+                )}
             </>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-            <div className="max-w-6xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">
-                                {assessment.vehicleName}
-                            </h1>
-                            <p className="text-gray-600 mt-1">
-                                ID: {assessment.vehicleId} • Status: {assessment.status}
-                            </p>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-sm text-gray-600">Assessment ID</div>
-                            <div className="text-lg font-mono font-bold text-gray-900">
-                                {assessment.id.slice(0, 8)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Error Message */}
-                {error && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                        {error}
-                    </div>
-                )}
-
-                {/* Phase Navigation */}
-                <div className="bg-white rounded-lg shadow-md p-4">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setCurrentPhase('pickup')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${currentPhase === 'pickup'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                        >
-                            <span>📍 Pickup</span>
-                            {completedAngles.length > 0 && currentPhase === 'pickup' && (
-                                <CheckCircle2 size={18} />
-                            )}
-                        </button>
-
-                        <ArrowRight className="text-gray-400" size={20} />
-
-                        <button
-                            onClick={() => setCurrentPhase('return')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${currentPhase === 'return'
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                        >
-                            <span>📤 Return</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Phase Content */}
-                <PhaseSection
-                    phase={currentPhase}
-                    angles={ANGLES}
-                    onPhotoUpload={handlePhotoUpload}
-                    completedAngles={completedAngles}
-                    loadingAngle={loadingAngle}
-                    uploadErrors={uploadErrors}
-                    onAnalyze={
-                        currentPhase === 'pickup' ? handleAnalyzePickup : handleAnalyzeReturn
-                    }
-                    isAnalyzing={isAnalyzing}
-                />
-
-                {/* Phase Actions */}
-                {completedAngles.length === ANGLES.length && (
-                    <div className="flex justify-between items-center">
-                        {currentPhase === 'return' && (
-                            <Button
-                                onClick={() => setCurrentPhase('pickup')}
-                                variant="outline"
-                                className="flex items-center gap-2"
-                            >
-                                <ArrowLeft size={18} />
-                                Back to Pickup
-                            </Button>
+        <div className="min-h-screen bg-white">
+            {/* Header */}
+            <div className="border-b border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <Button
+                        onClick={() => navigate('/')}
+                        variant="ghost"
+                        className="mb-4 text-gray-600"
+                    >
+                        ← Back
+                    </Button>
+                    <h1 className="text-3xl font-semibold text-gray-900">
+                        {assessment.vehicleName}
+                    </h1>
+                    <p className="text-sm text-gray-600 mt-2">
+                        {isAssessmentComplete ? (
+                            'Assessment Complete'
+                        ) : (
+                            <>
+                                {currentPhase === 'pickup' ? 'Pickup Phase' : 'Return Phase'} • {completedAngles.length}/{ANGLES.length} photos
+                            </>
                         )}
-                        <div className="flex-1" />
-                    </div>
-                )}
+                    </p>
+                </div>
+            </div>
 
-                {/* Loading Indicator */}
-                {loading && (
-                    <div className="flex items-center justify-center gap-3 p-4 bg-blue-50 rounded-lg">
-                        <div className="animate-spin">
-                            <div className="h-6 w-6 border-3 border-blue-500 border-t-transparent rounded-full" />
-                        </div>
-                        <span className="text-blue-700 font-medium">Processing...</span>
+            {/* Content */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Progress Bar */}
+                <div className="mb-12">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-700">Progress</span>
+                        <span className="text-sm text-gray-600">{completedAngles.length} of {ANGLES.length}</span>
                     </div>
-                )}
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                            className="bg-gray-900 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${(completedAngles.length / ANGLES.length) * 100}%` }}
+                        />
+                    </div>
+                </div>
+
+                {/* Photos Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
+                    {ANGLES.map((angle) => (
+                        <PhotoUploader
+                            key={angle}
+                            angle={angle}
+                            onUpload={(file: File) => handlePhotoUpload(angle, file)}
+                            isLoading={loadingAngle === angle}
+                            isComplete={completedAngles.includes(angle)}
+                            uploadError={uploadErrors[angle]}
+                        />
+                    ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-between items-center">
+                    {currentPhase === 'return' && !isAssessmentComplete && (
+                        <Button
+                            onClick={() => setCurrentPhase('pickup')}
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to Pickup
+                        </Button>
+                    )}
+                    <div className="flex-1" />
+                    {(allAnglesComplete || isAssessmentComplete) && (
+                        <Button
+                            onClick={handleActionButton}
+                            disabled={isAnalyzing}
+                            className="bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-2"
+                        >
+                            {isAnalyzing ? (
+                                <>
+                                    <Loader className="h-4 w-4 animate-spin" />
+                                    Analyzing...
+                                </>
+                            ) : (
+                                <>
+                                    <ArrowRight className="h-4 w-4" />
+                                    {getActionButtonLabel()}
+                                </>
+                            )}
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     );
 }
+
+export default AssessmentPage;

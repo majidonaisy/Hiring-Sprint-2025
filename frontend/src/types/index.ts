@@ -42,6 +42,12 @@ export interface Damage {
     location: string;
     estimatedCost: number;
     aiConfidence: number;
+    boundingBox?: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
     createdAt: Date;
 }
 

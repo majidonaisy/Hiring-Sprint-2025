@@ -24,7 +24,8 @@ export async function saveDamage(
     estimatedCost: number,
     aiConfidence: number,
     photoId?: string,
-    isNew: boolean = false
+    isNew: boolean = false,
+    boundingBox?: { x: number; y: number; width: number; height: number }
 ): Promise<Damage> {
     const damage = await prisma.damage.create({
         data: {
@@ -38,6 +39,10 @@ export async function saveDamage(
             estimatedCost,
             aiConfidence,
             isNew,
+            boundingBoxX: boundingBox?.x,
+            boundingBoxY: boundingBox?.y,
+            boundingBoxWidth: boundingBox?.width,
+            boundingBoxHeight: boundingBox?.height,
         },
     });
 
@@ -261,6 +266,19 @@ export async function calculateNewDamageCost(assessmentId: string): Promise<numb
  * Format database damage record to Damage type
  */
 function formatDamage(data: any): Damage {
+    const boundingBox =
+        data.boundingBoxX !== null &&
+            data.boundingBoxY !== null &&
+            data.boundingBoxWidth !== null &&
+            data.boundingBoxHeight !== null
+            ? {
+                x: data.boundingBoxX,
+                y: data.boundingBoxY,
+                width: data.boundingBoxWidth,
+                height: data.boundingBoxHeight,
+            }
+            : undefined;
+
     return {
         id: data.id,
         assessmentId: data.assessmentId,
@@ -271,6 +289,7 @@ function formatDamage(data: any): Damage {
         location: data.location,
         estimatedCost: data.estimatedCost,
         aiConfidence: data.aiConfidence,
+        boundingBox,
         createdAt: data.createdAt,
     };
 }

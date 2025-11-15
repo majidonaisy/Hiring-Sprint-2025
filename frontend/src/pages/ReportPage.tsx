@@ -6,7 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAssessment } from '../hooks/useAssessment';
-import { VehicleAngle, Damage, Assessment } from '../types';
+import { VehicleAngle, Damage } from '../types';
+import { ImageWithBoundingBoxes } from '../components/ImageWithBoundingBoxes';
 import { Button } from '../components/ui/button';
 import { ArrowLeft, Download, Share2, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -158,6 +159,40 @@ export function ReportPage() {
 
                 {expandedAngle === angle && (
                     <div className="p-4 border-t bg-gray-50">
+                        {/* Before/After Images */}
+                        <div className="mb-8">
+                            <h4 className="font-bold text-gray-900 mb-4">Photos</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Pickup Photo */}
+                                {assessment.pickupPhotos?.[angle] && (
+                                    <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+                                        <div className="bg-blue-50 px-4 py-2 border-b border-gray-200">
+                                            <p className="text-sm font-semibold text-blue-900">Pickup</p>
+                                        </div>
+                                        <ImageWithBoundingBoxes
+                                            src={assessment.pickupPhotos[angle].storagePath || ''}
+                                            alt={`Pickup - ${angle}`}
+                                            damages={pickupDamages}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Return Photo */}
+                                {assessment.returnPhotos?.[angle] && (
+                                    <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+                                        <div className="bg-green-50 px-4 py-2 border-b border-gray-200">
+                                            <p className="text-sm font-semibold text-green-900">Return</p>
+                                        </div>
+                                        <ImageWithBoundingBoxes
+                                            src={assessment.returnPhotos[angle].storagePath || ''}
+                                            alt={`Return - ${angle}`}
+                                            damages={returnDamages}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {newDamages.length > 0 && (
                             <div className="mb-6">
                                 <h4 className="font-bold text-red-900 mb-3 flex items-center gap-2">

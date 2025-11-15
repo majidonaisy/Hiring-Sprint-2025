@@ -12,6 +12,12 @@ export interface DetectedDamage {
     location: string; // Format: "x:100,y:150"
     estimatedCost: number;
     confidence: number;
+    boundingBox?: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
 }
 
 export interface PhotoAnalysis {

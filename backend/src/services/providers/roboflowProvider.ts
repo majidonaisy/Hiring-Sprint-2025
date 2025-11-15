@@ -140,12 +140,16 @@ export class RoboflowProvider implements IAIProvider {
             // Estimate cost based on severity and confidence
             const estimatedCost = this.estimateCost(severity, confidence);
 
+            // Extract bounding box dimensions
+            const boundingBox = this.extractBoundingBox(prediction);
+
             damages.push({
                 description: `${severity.charAt(0).toUpperCase() + severity.slice(1)} damage detected (${classLabel})`,
                 severity,
                 location,
                 estimatedCost,
                 confidence,
+                boundingBox,
             });
         });
 
@@ -199,6 +203,35 @@ export class RoboflowProvider implements IAIProvider {
         }
 
         return `x:${centerX},y:${centerY}`;
+    }
+
+    /**
+     * Extract bounding box dimensions from Roboflow prediction
+     * Returns object with x, y, width, height for rendering on frontend
+     */
+    private extractBoundingBox(prediction: any): { x: number; y: number; width: number; height: number } | undefined {
+        // Roboflow provides x, y (top-left corner), width, height
+        if (prediction.x !== undefined && prediction.y !== undefined && prediction.width !== undefined && prediction.height !== undefined) {
+            return {
+                x: Math.round(prediction.x),
+                y: Math.round(prediction.y),
+                width: Math.round(prediction.width),
+                height: Math.round(prediction.height),
+            };
+        }
+
+        // Alternative format: corners (x0, y0, x1, y1)
+        if (prediction.x0 !== undefined && prediction.y0 !== undefined && prediction.x1 !== undefined && prediction.y1 !== undefined) {
+            return {
+                x: Math.round(prediction.x0),
+                y: Math.round(prediction.y0),
+                width: Math.round(prediction.x1 - prediction.x0),
+                height: Math.round(prediction.y1 - prediction.y0),
+            };
+        }
+
+        // Return undefined if bounding box data not available
+        return undefined;
     }
 
     /**
